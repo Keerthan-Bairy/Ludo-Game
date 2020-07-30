@@ -1,0 +1,167 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class GameManagerScript : MonoBehaviour
+{
+    public static GameManagerScript mGameManager;
+    [SerializeField] GameObject[] mAllTokens;
+    public DiceNumberScript mRolledDice;
+    public GameObject[] mRollingDice;
+    public List<int> mPlayingTokens;
+
+    private RedTokenScript mRedToken;
+    private BlueTokenScript mBlueToken;
+    private YellowTokenScript mYellowToken;
+    private GreenTokenScript mGreenToken;
+
+    private RedPlayerScript mRedPlayer;
+    private BluePlayerScript mBluePlayer;
+
+    public bool mCanClick = false;
+    public bool mDiceRolled = false;
+    public bool mRedDiceMove = false;
+    public bool mPlayGame = true;
+    public bool mSwitchPlayer = false;
+
+    public int mNumberGot;
+    public int mPlayerIndex;
+    public enum EPlayer {RedPlayer,BluePlayer,YellowPlayer,GreenPlayer };
+    EPlayer player;
+    private void Awake()
+    {
+        mGameManager = this; 
+    }
+    private void Update()
+    {
+        if (mDiceRolled == true)
+        {
+            mCanClick = false;
+        }
+        NextPlayer();
+    }
+    private void Start()
+    {
+        mRedToken = FindObjectOfType<RedTokenScript>();
+        mBlueToken = FindObjectOfType<BlueTokenScript>();
+        mYellowToken = FindObjectOfType<YellowTokenScript>();
+        mGreenToken = FindObjectOfType<GreenTokenScript>();
+        mRedPlayer = FindObjectOfType<RedPlayerScript>();
+        mBluePlayer = FindObjectOfType<BluePlayerScript>();
+        for (int i = 0; i < mAllTokens.Length; i++)
+        {
+            if (mAllTokens[i].activeInHierarchy)
+            {
+                mPlayingTokens.Add(i);
+            }
+        }
+        mPlayerIndex = 0;
+        player = EPlayer.RedPlayer;
+        StartGame1(mPlayingTokens[mPlayerIndex]);
+    }
+    public void StartGame(EPlayer inPlayer)
+    {
+        if (inPlayer == EPlayer.RedPlayer)
+        {
+            mRollingDice[0].SetActive(true);
+            mRollingDice[1].SetActive(false);
+            mRollingDice[2].SetActive(false);
+            mRollingDice[3].SetActive(false);
+            mCanClick = true;
+            mRedToken.CanMove();
+        }
+        else if (inPlayer == EPlayer.BluePlayer)
+        {
+            mRollingDice[0].SetActive(false);
+            mRollingDice[1].SetActive(true);
+            mRollingDice[2].SetActive(false);
+            mRollingDice[3].SetActive(false);
+            mCanClick = true;
+            mBlueToken.CanMove();
+        }
+        else if (inPlayer == EPlayer.YellowPlayer)
+        {
+            mRollingDice[0].SetActive(false);
+            mRollingDice[1].SetActive(false);
+            mRollingDice[2].SetActive(true);
+            mRollingDice[3].SetActive(false);
+            mCanClick = true;
+            mYellowToken.CanMove();
+        }
+        else if (inPlayer == EPlayer.GreenPlayer)
+        {
+            mRollingDice[0].SetActive(false);
+            mRollingDice[1].SetActive(false);
+            mRollingDice[2].SetActive(false);
+            mRollingDice[3].SetActive(true);
+            mCanClick = true;
+            mGreenToken.CanMove();
+        }
+    }
+    public void StartGame1(int inChoice)
+    {
+        switch (inChoice)
+        {
+            case 0:
+                mRollingDice[0].SetActive(true);
+                mRollingDice[1].SetActive(false);
+                mRollingDice[2].SetActive(false);
+                mRollingDice[3].SetActive(false);
+                mCanClick = true;
+                mRedToken.CanMove();
+                break;
+            case 1:
+                mRollingDice[0].SetActive(false);
+                mRollingDice[1].SetActive(true);
+                mRollingDice[2].SetActive(false);
+                mRollingDice[3].SetActive(false);
+                mCanClick = true;
+                mBlueToken.CanMove();
+                break;
+            case 2:
+                mRollingDice[0].SetActive(false);
+                mRollingDice[1].SetActive(false);
+                mRollingDice[2].SetActive(true);
+                mRollingDice[3].SetActive(false);
+                mCanClick = true;
+                mYellowToken.CanMove();
+                break;
+            case 3:
+                mRollingDice[0].SetActive(false);
+                mRollingDice[1].SetActive(false);
+                mRollingDice[2].SetActive(false);
+                mRollingDice[3].SetActive(true);
+                mCanClick = true;
+                mGreenToken.CanMove();
+                break;
+        }
+    }
+    public void MoveToNextPlayer()
+    {
+        if (mCanClick==false)
+        {
+            StartGame1(mPlayingTokens[mPlayerIndex+1]);
+        }
+    }
+    IEnumerator ISwitchPlayer()
+    {
+        yield return new WaitForSeconds(.75f);
+        if (mSwitchPlayer == true)
+        {
+            StartGame1(mPlayingTokens[mPlayerIndex + 1]);
+            mSwitchPlayer = false;
+        }
+    }
+    public void NextPlayer()
+    {
+        if (mDiceRolled == true && mRedPlayer.mAnotherChance == true && mNumberGot != 6)
+        {
+            mSwitchPlayer = true;
+            StartCoroutine(ISwitchPlayer());
+        }
+        else if((mDiceRolled == true && mBluePlayer.mAnotherChance == true && mNumberGot != 6)){
+            mSwitchPlayer = true;
+            StartCoroutine(ISwitchPlayer());
+        }
+    }
+}

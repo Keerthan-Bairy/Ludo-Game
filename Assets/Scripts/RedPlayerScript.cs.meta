@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: 217139d6a3be119419107d132c30b487
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - mTokenPath: {fileID: 1077850979862897921, guid: 68152681ea6f1e24ebfba28e32b48b8d,
+      type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

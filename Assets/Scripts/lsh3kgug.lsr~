@@ -1,0 +1,75 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class RedPlayerScript : MonoBehaviour
+{ 
+    [SerializeField] GameObject mTokenPath;
+    Transform[] mPath;
+    DiceNumberScript mDiceNumberScript;
+    DiceNumberScript mRedDice;
+    Coroutine mMoveToken;
+    private int mNumberGot;
+    private int mNumberOfStepsMoved = 0;
+    public bool mIsReadyToMove = false;
+    public bool mRedCanMove = false;
+
+    private enum ERedPlayerState { Idle,Playing};
+    ERedPlayerState RedState;
+    private void Start()
+    {
+        mPath = mTokenPath.GetComponentsInChildren<Transform>();
+        RedState = ERedPlayerState.Idle;
+    }
+
+
+    private void OnMouseDown()
+    {
+        MoveToken();
+    }
+ 
+    public void MoveToken()
+    {
+        if (mRedCanMove && GameManagerScript.mGameManager.mDiceRolled == true)
+        {
+            mMoveToken = StartCoroutine(IMoveToken());
+            GameManagerScript.mGameManager.mDiceRolled = false;
+        }
+    }
+
+    IEnumerator IMoveToken()
+    {
+        yield return new WaitForSeconds(.25f);
+        mNumberGot = GameManagerScript.mGameManager.mNumberGot;
+       
+            if (mNumberGot == 6 && mIsReadyToMove == false)
+            {
+                transform.position = mPath[5].transform.position;
+                GameManagerScript.mGameManager.mCanClick = true;
+                mIsReadyToMove = true;
+            }
+            else if (mIsReadyToMove && mNumberGot <= 6)
+            {
+
+                for (int i = mNumberOfStepsMoved; i < (mNumberGot + mNumberOfStepsMoved); i++)
+                {
+                    transform.position = mPath[i].transform.position;
+                    GameManagerScript.mGameManager.mCanClick = false;
+                    yield return new WaitForSeconds(.25f);
+                    mRedCanMove = false;
+                }
+                if (mNumberGot == 6)
+                {
+                    GameManagerScript.mGameManager.mCanClick = true;
+                    mRedCanMove = true;
+                }
+            
+        }
+       
+        mNumberOfStepsMoved += mNumberGot;
+        if (mMoveToken != null)
+        {
+            StopCoroutine(mMoveToken);
+        }
+    }
+}
